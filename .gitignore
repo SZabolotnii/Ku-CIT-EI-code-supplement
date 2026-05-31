@@ -1,0 +1,11 @@
+.Rhistory
+.RData
+.Rproj.user/
+data/*.rds
+*.log
+*.aux
+*.out
+*.toc
+.DS_Store
+__MACOSX/
+

@@ -1,0 +1,5 @@
+"basis","type1_ok","phq_power_gt_0.40","beats_gsa_order4_reference","gaussian_nuisance_ok","conditioning_ok","basis_pass"
+"poly3",TRUE,TRUE,TRUE,FALSE,TRUE,FALSE
+"poly4",TRUE,TRUE,TRUE,FALSE,TRUE,FALSE
+"signed_frac",TRUE,TRUE,TRUE,FALSE,TRUE,FALSE
+"robust",TRUE,TRUE,TRUE,FALSE,TRUE,FALSE

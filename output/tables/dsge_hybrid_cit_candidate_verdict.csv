@@ -1,0 +1,3 @@
+"candidate","typeI_H0_ng_ok","nuisance_H1_gauss_ok","power_H1_ng_ok","power_beats_existing_ok","accuracy_bootstrap_ok","candidate_pass"
+"dsge",TRUE,TRUE,TRUE,FALSE,FALSE,FALSE
+"hybrid",TRUE,TRUE,TRUE,TRUE,TRUE,TRUE

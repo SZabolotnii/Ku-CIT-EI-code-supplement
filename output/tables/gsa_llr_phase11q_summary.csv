@@ -1,0 +1,6 @@
+"family","cells","median_order3_empirical","median_order4_empirical","median_omnibus_empirical_joint","median_omnibus_null_empirical_joint","max_omnibus_empirical_joint"
+"gaussian_no_direction",12,NA,NA,NA,NA,NA
+"mixed",54,0.144,0.341,0.355,0.05,1
+"null_symmetric_loading",33,0.052,0.05,0.05,0.05,0.088
+"pure_kurtosis",27,NA,0.266,0.266,0.05,1
+"skew_only",18,0.84,0.84,0.84,0.05,1

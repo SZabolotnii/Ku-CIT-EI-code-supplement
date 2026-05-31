@@ -1,0 +1,2 @@
+"method","accuracy","balanced_accuracy","power_H1_ng","source"
+"hybrid",0.931111111111111,0.92375,0.901666666666667,"output/tables/dsge_hybrid_cit_results.csv"

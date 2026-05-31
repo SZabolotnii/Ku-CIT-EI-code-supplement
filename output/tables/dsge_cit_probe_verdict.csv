@@ -1,0 +1,6 @@
+"criterion","pass"
+"any_basis_passes_all_gates",FALSE
+"any_basis_phq_power_gt_0.40",TRUE
+"any_basis_beats_gsa_order4_reference",TRUE
+"any_basis_passes_gaussian_nuisance_guard",FALSE
+"all_conditioning_ok",TRUE

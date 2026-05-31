@@ -1,0 +1,5 @@
+"criterion","pass"
+"typeI_acceptable_in_90pct_null_cells",TRUE
+"order3_power_monotone_in_R_for_skewness",TRUE
+"order4_power_gt_0.40_in_phq_like_pure_kurtosis_cell",FALSE
+"omnibus_covers_skewness_and_kurtosis_families_without_dominance_claim",TRUE

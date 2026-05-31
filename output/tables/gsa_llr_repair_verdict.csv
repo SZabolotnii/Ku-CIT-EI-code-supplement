@@ -1,0 +1,4 @@
+"criterion","pass"
+"gaussian_fixed_typeI_control",TRUE
+"high_order_phq_power_gt_0.40",FALSE
+"high_order_conditioning_acceptable",TRUE

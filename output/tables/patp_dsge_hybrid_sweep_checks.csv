@@ -1,0 +1,9 @@
+"criterion","value","pass"
+"alpha_opt_not_boundary",0.75,TRUE
+"typeI_controlled",0.0233333333333333,TRUE
+"gaussian_nuisance_guard",0.055,TRUE
+"power_gt_0.40",0.886666666666667,TRUE
+"bootstrap_accuracy_beats_existing",0.0994444444444444,TRUE
+"conditioning_ok",36526.7054726756,TRUE
+"stable_neighborhood_pm005",0.9125,TRUE
+"within_2pp_of_saved_discrete_hybrid_accuracy",0.00500000000000012,TRUE

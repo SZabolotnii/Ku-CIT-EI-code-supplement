@@ -1,0 +1,7 @@
+"criterion","value","pass"
+"H0 variance reduction vs naive",1.12696935994852,TRUE
+"Type-I controlled for PMM3-style estimator",0.07125,TRUE
+"H1 signal retained vs naive mean",1.04506305225415,TRUE
+"Large-N H1 reference retained",1.00039639190832,TRUE
+"Power beats naive by at least 5pp",0.02125,FALSE
+"Gaussian nuisance not worse than 10pct",0.295,FALSE

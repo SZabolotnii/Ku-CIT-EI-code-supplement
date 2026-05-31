@@ -1,0 +1,2 @@
+"method","n_features","threshold","typeI_H0_ng","nuisance_H1_gauss","power_H1_ng","accuracy","balanced_accuracy","alpha","patp_basis","cond_h0","cond_h1","cond_max"
+"hybrid",14,0.498121127371081,0.0233333333333333,0.055,0.886666666666667,0.936111111111111,0.92375,0.75,"patp_n3_a0.75",36185.2694111924,36526.7054726756,36526.7054726756
