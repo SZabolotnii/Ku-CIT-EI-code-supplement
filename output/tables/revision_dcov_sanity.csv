@@ -1,0 +1,4 @@
+"scenario","N","R","cor_E1E2","H0_error_independence","raw_dcov_rejection_rate","ci_lo","ci_hi","n_reps","permutations","mean_p_value","median_p_value","interpretation"
+"H0_common_true_score",300,1,0,TRUE,1,0.901099007675596,1,35,99,0.01,0.01,"Raw dCov tests observed-score independence, not W&S error-independence; common T creates dependence under H0."
+"H1_boundary",300,1.25,0.19,FALSE,1,0.901099007675596,1,35,99,0.01,0.01,"Raw dCov tests observed-score independence, not W&S error-independence; common T creates dependence under H0."
+"H1_strong",300,2,0.38,FALSE,1,0.901099007675596,1,35,99,0.01,0.01,"Raw dCov tests observed-score independence, not W&S error-independence; common T creates dependence under H0."

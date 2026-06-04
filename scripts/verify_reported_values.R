@@ -9,32 +9,116 @@ read_table <- function(name) {
 }
 
 near <- function(actual, expected, label, tolerance = tol) {
-  if (!isTRUE(abs(actual - expected) <= tolerance)) {
-    stop(sprintf("%s: expected %.6f, got %.6f", label, expected, actual), call. = FALSE)
+  if (length(actual) != 1L || !is.finite(actual) ||
+      !isTRUE(abs(actual - expected) <= tolerance)) {
+    stop(sprintf("%s: expected %.6f, got %.6f", label, expected, actual),
+         call. = FALSE)
   }
-  cat(sprintf("PASS %-48s %.6f\n", label, actual))
+  cat(sprintf("PASS %-58s %.6f\n", label, actual))
 }
 
-is_true <- function(value, label) {
-  if (!isTRUE(value)) stop(sprintf("%s: expected TRUE", label), call. = FALSE)
-  cat(sprintf("PASS %-48s TRUE\n", label))
-}
-
-is_false <- function(value, label) {
-  if (!identical(value, FALSE)) stop(sprintf("%s: expected FALSE", label), call. = FALSE)
-  cat(sprintf("PASS %-48s FALSE\n", label))
+row1 <- function(dat, expr, label) {
+  rows <- dat[expr, , drop = FALSE]
+  if (nrow(rows) != 1L) {
+    stop(sprintf("%s: expected one matching row, got %d", label, nrow(rows)),
+         call. = FALSE)
+  }
+  rows[1, , drop = FALSE]
 }
 
 sim <- read_table("sim_comparative_summary.csv")
-row <- sim[sim$R == 2 & sim$gamma_T == 2.25, ]
-near(row$power_gain_pp, -51.9, "PMM2 power loss, R=2 gamma_T=2.25", 0.05)
+expected_are <- data.frame(
+  R = c(1, 1, 1.25, 1.25, 2, 2),
+  gamma_T = c(0, 2.25, 0, 2.25, 0, 2.25),
+  ARE_mean = c(1.89, 4.63, 1.23, 1.34, 5.16, 4.80),
+  ARE_median = c(1.89, 4.67, 1.21, 1.32, 4.64, 4.63),
+  power_naive_mean = c(0.061, 0.065, 0.157, 0.159, 0.864, 0.853),
+  power_pmm2_mean = c(0.062, 0.068, 0.085, 0.066, 0.366, 0.334),
+  power_gain_pp = c(0.1, 0.2, -7.2, -9.3, -49.8, -51.9)
+)
+
+for (i in seq_len(nrow(expected_are))) {
+  er <- expected_are[i, ]
+  sr <- row1(sim, sim$R == er$R & sim$gamma_T == er$gamma_T,
+             sprintf("summary row R=%s gamma_T=%s", er$R, er$gamma_T))
+  near(sr$ARE_mean, er$ARE_mean, sprintf("Table ARE mean R=%s gamma_T=%s", er$R, er$gamma_T), 0.005)
+  near(sr$ARE_median, er$ARE_median, sprintf("Table ARE median R=%s gamma_T=%s", er$R, er$gamma_T), 0.005)
+  near(sr$power_naive_mean, er$power_naive_mean, sprintf("Table power naive R=%s gamma_T=%s", er$R, er$gamma_T), 0.0005)
+  near(sr$power_pmm2_mean, er$power_pmm2_mean, sprintf("Table power PMM2 R=%s gamma_T=%s", er$R, er$gamma_T), 0.0005)
+  near(sr$power_gain_pp, er$power_gain_pp, sprintf("Table power loss R=%s gamma_T=%s", er$R, er$gamma_T), 0.05)
+}
 
 are <- read_table("are_pmm2_vs_naive.csv")
-row <- are[are$R == 2 & are$gamma_U == 2.25 & are$gamma_T == 0 & are$N == 2000, ]
-true_dc3 <- row$R * (row$R - 1) * row$gamma_U
-attenuation <- 1 - row$mean_pmm2 / true_dc3
-near(true_dc3, 4.5, "true Delta c3, R=2 gamma_U=2.25")
-near(attenuation, 0.812, "PMM2 attenuation, R=2 gamma_U=2.25 N=2000", 0.001)
+bias_cells <- data.frame(
+  R = c(1.25, 1.25, 1.25, 1.25, 2, 2, 2, 2),
+  gamma_U = c(0.75, 0.75, 2.25, 2.25, 0.75, 0.75, 2.25, 2.25),
+  N = c(500, 2000, 500, 2000, 500, 2000, 500, 2000),
+  true_dc3 = c(0.234, 0.234, 0.703, 0.703, 1.500, 1.500, 4.500, 4.500),
+  mean_naive = c(0.297, 0.239, 0.649, 0.723, 1.475, 1.514, 4.431, 4.452),
+  mean_pmm2 = c(0.172, 0.134, 0.219, 0.309, 0.187, 0.193, 0.694, 0.846),
+  attenuation = c(0.265, 0.427, 0.688, 0.560, 0.875, 0.871, 0.846, 0.812),
+  power_gain_pp = c(-2.0, -1.0, -5.5, -9.0, -29.5, -74.0, -74.0, -34.5)
+)
+
+for (i in seq_len(nrow(bias_cells))) {
+  bc <- bias_cells[i, ]
+  ar <- row1(are, are$R == bc$R & are$gamma_U == bc$gamma_U &
+               are$gamma_T == 0 & are$N == bc$N,
+             sprintf("bias row R=%s gamma_U=%s N=%s", bc$R, bc$gamma_U, bc$N))
+  true_dc3 <- ar$R * (ar$R - 1) * ar$gamma_U
+  attenuation <- 1 - ar$mean_pmm2 / true_dc3
+  near(true_dc3, bc$true_dc3, sprintf("Table bias true Dc3 R=%s gamma_U=%s N=%s", bc$R, bc$gamma_U, bc$N), 0.0006)
+  near(ar$mean_naive, bc$mean_naive, sprintf("Table bias naive mean R=%s gamma_U=%s N=%s", bc$R, bc$gamma_U, bc$N), 0.0006)
+  near(ar$mean_pmm2, bc$mean_pmm2, sprintf("Table bias PMM2 mean R=%s gamma_U=%s N=%s", bc$R, bc$gamma_U, bc$N), 0.0006)
+  near(attenuation, bc$attenuation, sprintf("Table bias attenuation R=%s gamma_U=%s N=%s", bc$R, bc$gamma_U, bc$N), 0.004)
+  near(ar$power_gain_pp, bc$power_gain_pp, sprintf("Table bias power loss R=%s gamma_U=%s N=%s", bc$R, bc$gamma_U, bc$N), 0.05)
+}
+
+boot <- read_table("revision_bootstrap_sensitivity.csv")
+strong_pct_naive <- row1(boot, boot$scenario == "H1_strong" &
+                           boot$estimator == "naive_delta_c3" &
+                           boot$B == 1000 & boot$ci_method == "percentile",
+                         "revision bootstrap strong naive percentile")
+strong_pct_pmm2 <- row1(boot, boot$scenario == "H1_strong" &
+                          boot$estimator == "pmm2_delta_c3" &
+                          boot$B == 1000 & boot$ci_method == "percentile",
+                        "revision bootstrap strong PMM2 percentile")
+strong_bca_naive <- row1(boot, boot$scenario == "H1_strong" &
+                           boot$estimator == "naive_delta_c3" &
+                           boot$B == 1000 & boot$ci_method == "bca",
+                         "revision bootstrap strong naive BCa")
+strong_bca_pmm2 <- row1(boot, boot$scenario == "H1_strong" &
+                          boot$estimator == "pmm2_delta_c3" &
+                          boot$B == 1000 & boot$ci_method == "bca",
+                        "revision bootstrap strong PMM2 BCa")
+near(strong_pct_naive$rejection_rate, 0.8833333333, "Revision bootstrap percentile naive power", 1e-6)
+near(strong_pct_pmm2$rejection_rate, 0.2500000000, "Revision bootstrap percentile PMM2 power", 1e-6)
+near(strong_bca_naive$rejection_rate, 0.9000000000, "Revision bootstrap BCa naive power", 1e-6)
+near(strong_bca_pmm2$rejection_rate, 0.3000000000, "Revision bootstrap BCa PMM2 power", 1e-6)
+
+heavy <- read_table("revision_heavytail_sensitivity.csv")
+h500_naive <- row1(heavy, heavy$R == 2 & heavy$N == 500 & heavy$estimator == "naive_delta_c3",
+                   "heavy-tail R=2 N=500 naive")
+h500_pmm2 <- row1(heavy, heavy$R == 2 & heavy$N == 500 & heavy$estimator == "pmm2_delta_c3",
+                  "heavy-tail R=2 N=500 PMM2")
+h2000_naive <- row1(heavy, heavy$R == 2 & heavy$N == 2000 & heavy$estimator == "naive_delta_c3",
+                    "heavy-tail R=2 N=2000 naive")
+h2000_pmm2 <- row1(heavy, heavy$R == 2 & heavy$N == 2000 & heavy$estimator == "pmm2_delta_c3",
+                   "heavy-tail R=2 N=2000 PMM2")
+near(h500_naive$power, 0.6625, "Heavy-tail R=2 N=500 naive power", 1e-6)
+near(h500_pmm2$power, 0.0750, "Heavy-tail R=2 N=500 PMM2 power", 1e-6)
+near(h2000_naive$power, 0.9875, "Heavy-tail R=2 N=2000 naive power", 1e-6)
+near(h2000_pmm2$power, 0.2500, "Heavy-tail R=2 N=2000 PMM2 power", 1e-6)
+
+heavy_ratios <- read_table("revision_heavytail_ratios.csv")
+hr <- row1(heavy_ratios, heavy_ratios$scenario == "Tukey_g0.35_h0.10_R2_N2000",
+           "heavy-tail R=2 N=2000 signal ratio")
+near(hr$signal_ratio, 0.1143563359, "Heavy-tail R=2 N=2000 PMM2/naive signal ratio", 1e-9)
+
+dcov <- read_table("revision_dcov_sanity.csv")
+d0 <- row1(dcov, dcov$scenario == "H0_common_true_score", "raw dCov H0 row")
+near(d0$raw_dcov_rejection_rate, 1.0, "Raw dCov H0 observed-score rejection", 1e-12)
+near(d0$ci_lo, 0.9010990077, "Raw dCov H0 Wilson CI low", 1e-9)
 
 pmm3 <- read_table("pmm3_symmetric_probe_results.csv")
 var_ratio <- pmm3$var_H0_ng[pmm3$method == "naive_delta_c4"] /
@@ -42,45 +126,13 @@ var_ratio <- pmm3$var_H0_ng[pmm3$method == "naive_delta_c4"] /
 power_gain <- pmm3$power_H1_ng[pmm3$method == "pmm3_delta_c4"] -
   pmm3$power_H1_ng[pmm3$method == "naive_delta_c4"]
 nuisance <- pmm3$nuisance_H1_gauss[pmm3$method == "pmm3_delta_c4"]
-near(var_ratio, 1.127, "PMM3 variance ratio", 0.001)
-near(power_gain, 0.02125, "PMM3 power gain", 0.0001)
-near(nuisance, 0.295, "PMM3 Gaussian nuisance rejection")
+near(var_ratio, 1.127, "PMM3 diagnostic variance ratio", 0.001)
+near(power_gain, 0.02125, "PMM3 diagnostic power gain", 0.0001)
+near(nuisance, 0.295, "PMM3 diagnostic nuisance rejection", 0.0001)
 
-gsa <- read_table("gsa_llr_phase11q_verdict.csv")
-is_true(gsa$pass[gsa$criterion == "typeI_acceptable_in_90pct_null_cells"],
-        "GSA Type-I verdict")
-is_false(gsa$pass[gsa$criterion == "order4_power_gt_0.40_in_phq_like_pure_kurtosis_cell"],
-         "GSA PHQ-like pure-kurtosis gate")
+pmm3_ci <- read_table("revision_pmm3_ci.csv")
+pmm3_type1 <- row1(pmm3_ci, pmm3_ci$method == "pmm3_delta_c4" &
+                     pmm3_ci$metric == "typeI_H0_ng", "PMM3 type-I CI")
+near(pmm3_type1$rate, 0.07125, "PMM3 diagnostic Type-I rate", 1e-6)
 
-hybrid <- read_table("dsge_hybrid_cit_results.csv")
-row <- hybrid[hybrid$method == "hybrid", ]
-near(row$typeI_H0_ng, 0.030, "Existing + DSGE Type-I")
-near(row$nuisance_H1_gauss, 0.0783333333, "Existing + DSGE nuisance", 1e-6)
-near(row$power_H1_ng, 0.9016666667, "Existing + DSGE power", 1e-6)
-near(row$accuracy, 0.9311111111, "Existing + DSGE accuracy", 1e-6)
-
-hybrid_boot <- read_table("dsge_hybrid_cit_bootstrap.csv")
-row <- hybrid_boot[hybrid_boot$candidate == "hybrid", ]
-near(row$delta, 0.095, "Existing + DSGE bootstrap delta")
-near(row$ci_low, 0.0788888889, "Existing + DSGE bootstrap CI low", 1e-6)
-near(row$ci_high, 0.111125, "Existing + DSGE bootstrap CI high", 1e-6)
-
-patp <- read_table("patp_dsge_hybrid_sweep_best.csv")
-near(patp$alpha, 0.75, "PATP hybrid alpha")
-near(patp$typeI_H0_ng, 0.0233333333, "PATP hybrid Type-I", 1e-6)
-near(patp$nuisance_H1_gauss, 0.055, "PATP hybrid nuisance")
-near(patp$power_H1_ng, 0.8866666667, "PATP hybrid power", 1e-6)
-near(patp$accuracy, 0.9361111111, "PATP hybrid accuracy", 1e-6)
-
-patp_boot <- read_table("patp_dsge_hybrid_sweep_bootstrap.csv")
-row <- patp_boot[patp_boot$candidate == "patp_hybrid", ]
-near(row$delta, 0.0994444444, "PATP hybrid bootstrap delta", 1e-6)
-near(row$ci_low, 0.0838888889, "PATP hybrid bootstrap CI low", 1e-6)
-near(row$ci_high, 0.1155555556, "PATP hybrid bootstrap CI high", 1e-6)
-
-patp_verdict <- read_table("patp_dsge_hybrid_sweep_verdict.csv")
-is_true(patp_verdict$pass[patp_verdict$criterion == "patp_hybrid_passes_positive_candidate_gates"],
-        "PATP hybrid positive-candidate verdict")
-
-cat("\nAll headline verification checks passed.\n")
-
+cat("\nAll current-manuscript verification checks passed.\n")

@@ -1,0 +1,5 @@
+"scenario","estimator","signal_ratio","power_diff_pp"
+"Tukey_g0.35_h0.10_R1.25_N2000","pmm2_vs_naive_ratio",0.316766102265312,-3.75
+"Tukey_g0.35_h0.10_R1.25_N500","pmm2_vs_naive_ratio",0.227015016612885,-2.5
+"Tukey_g0.35_h0.10_R2_N2000","pmm2_vs_naive_ratio",0.114356335881627,-73.75
+"Tukey_g0.35_h0.10_R2_N500","pmm2_vs_naive_ratio",0.0867708360284036,-58.75

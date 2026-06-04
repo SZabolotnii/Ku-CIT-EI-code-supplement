@@ -1,51 +1,84 @@
 # Ku-CIT-EI Code Supplement
 
-This repository contains the open verification supplement for the manuscript:
+Public verification supplement for the manuscript:
 
-**Kunchenko Stochastic Polynomials for Cumulant-Based Error-Independence Testing**
+**A Transferability Criterion for Null-Optimized Variance Reduction in Cumulant-Based Error-Independence Testing**
 
-The supplement is intended to let reviewers and readers inspect the R code, generated Monte Carlo tables, figures, and headline numerical checks used in the manuscript. It intentionally excludes raw BRFSS files, processed `.rds` files, third-party PDFs, and private scratch material.
+Repository: <https://github.com/SZabolotnii/Ku-CIT-EI-code-supplement>
+
+## Scope
+
+The current manuscript evaluates whether a null-optimized PMM2
+variance-reduction statistic transfers safely to a cumulant-based
+error-independence test. The supplement contains the R code, generated
+CSV artifacts, figures, and verification checks needed to reproduce the
+headline numerical claims in the manuscript.
+
+The active manuscript scope is:
+
+- W&S-style third-order naive cumulant estimator;
+- PMM2 variance-reduced estimator and its loss of alternative-side
+  consistency;
+- PMM3-style fourth-order diagnostic probe;
+- targeted revision checks: Wilson intervals, bootstrap sensitivity,
+  Tukey g-and-h heavy-tail sensitivity, and raw distance-covariance
+  sanity baseline;
+- PATP only as a conceptual basis-adaptivity direction, not as a
+  positive empirical method in this manuscript.
+
+Some older exploratory GSA/DSGE/PATP-DSGE files remain in the repository
+for provenance of the broader research track. They are not part of the
+current manuscript's headline verification.
 
 ## Contents
 
-- `scripts/` - R scripts for the W&S-style naive estimators, PMM2 comparison, PMM3 diagnostic, GSA-LLR diagnostics, DSGE/PATP-DSGE hybrid classifiers, figure generation, and headline-value verification.
-- `output/tables/` - generated CSV tables used to report Monte Carlo diagnostics, ablations, bootstrap intervals, and verdict checks.
-- `output/figures/` - generated figures used in the manuscript and supplement.
-- `output/session_info/` - R session snapshots for the main follow-up runs.
-- `docs/DATA_POLICY.md` - data and redistribution boundary for this public supplement.
+- `scripts/02_naive_estimators.R`, `scripts/05_dgp.R`,
+  `scripts/08_pmm2_estimator.R` - core DGP and estimator helpers.
+- `scripts/09_sim_comparative.R` - PMM2 versus naive Monte Carlo driver.
+- `scripts/18_pmm3_symmetric_probe.R` - PMM3-style diagnostic probe.
+- `scripts/21_revision_experiments.R` - targeted revision experiments.
+- `scripts/verify_reported_values.R` - fast verification of the
+  manuscript-level numerical claims from generated CSV artifacts.
+- `output/tables/` - generated CSV tables used for manuscript tables and
+  diagnostics.
+- `output/figures/` - generated figures from the broader supplement.
+- `output/session_info/` - R session snapshots for main follow-up runs.
+- `docs/DATA_POLICY.md` - data and redistribution boundary.
 - `RUNBOOK.md` - execution-oriented reproduction notes.
 
 ## Quick Verification
 
-To verify the main numerical claims from the included CSV artifacts:
+Run from the repository root:
 
 ```sh
 Rscript scripts/verify_reported_values.R
 ```
 
-Expected result: all checks pass.
+Expected result:
+
+```text
+All current-manuscript verification checks passed.
+```
+
+This check uses the generated CSV artifacts and does not rerun the full
+Monte Carlo workflow.
 
 ## Reproduction Notes
 
-The included CSV files are the exact generated artifacts used for manuscript tables and diagnostics. The full Monte Carlo scripts are also included, but rerunning every full simulation can take nontrivial time.
-
-Minimal rerun path:
+The generated CSV files are included so reviewers can inspect the exact
+artifacts used in the manuscript. Full simulation reruns can take
+nontrivial time. A focused reproduction path is:
 
 ```sh
 Rscript scripts/09_sim_comparative.R
-Rscript scripts/15_gsa_llr_repair_sweep.R
 Rscript scripts/18_pmm3_symmetric_probe.R
-Rscript scripts/17_dsge_hybrid_cit_classifier.R
-Rscript scripts/19_patp_dsge_hybrid_sweep.R
-Rscript scripts/20_make_patp_dsge_hybrid_figure.R
+Rscript scripts/21_revision_experiments.R
 Rscript scripts/verify_reported_values.R
 ```
 
-Some scripts support quick modes through command-line flags or environment variables; see `RUNBOOK.md`.
-
 ## R Dependencies
 
-The core scripts use base R plus:
+The active manuscript scripts use base R plus:
 
 - `moments`
 - `here`
@@ -56,11 +89,18 @@ The core scripts use base R plus:
 - `tidyr`
 - `testthat` for local estimator checks
 
+The revision distance-covariance sanity check is implemented locally and
+does not require `energy` or `Hmisc`.
+
 ## Data Boundary
 
-The manuscript is simulation-based. BRFSS 2010 PHQ-8 is used only as public-data context for the Wiedermann-Shi application setting. This repository does not redistribute BRFSS data or third-party articles.
+The manuscript is simulation-based. BRFSS 2010 PHQ-8 is used only as
+public-data context for the Wiedermann-Shi application setting. This
+repository does not redistribute BRFSS data or third-party articles.
 
 ## License
 
-No explicit open-source license has been declared in this repository yet. Until a license is added, the code and generated artifacts are available for review and verification, but reuse rights should be clarified by the author.
-
+No explicit open-source license has been declared in this repository
+yet. Until a license is added, the code and generated artifacts are
+available for review and verification, but reuse rights should be
+clarified by the author.

@@ -1,8 +1,10 @@
 # RUNBOOK
 
-Last updated: 2026-05-31
+Last updated: 2026-06-04
 
-Scope: public verification supplement for the Ku-CIT-EI manuscript.
+Scope: public verification supplement for the current Ku-CIT-EI
+manuscript, **A Transferability Criterion for Null-Optimized Variance
+Reduction in Cumulant-Based Error-Independence Testing**.
 
 ## Headline Verification
 
@@ -12,7 +14,19 @@ Run:
 Rscript scripts/verify_reported_values.R
 ```
 
-This checks the headline values reported in the manuscript against the generated CSV artifacts in `output/tables/`.
+This checks the manuscript-level numerical claims against generated CSV
+artifacts in `output/tables/`:
+
+- ARE table for PMM2 versus naive;
+- bias/attenuation and power-loss table;
+- targeted revision diagnostics;
+- PMM3-style diagnostic values.
+
+Expected final line:
+
+```text
+All current-manuscript verification checks passed.
+```
 
 ## PMM2 Comparative Monte Carlo
 
@@ -28,69 +42,59 @@ Generated artifacts:
 - `output/tables/sim_comparative_summary.csv`
 - `data/mc_comparative.rds`
 
-Figures:
+Figure:
 
 ```sh
 Rscript scripts/10_fig_comparative.R
 ```
 
-## GSA-LLR Diagnostics
-
-Compact Monte Carlo:
-
-```sh
-Rscript scripts/14_gsa_llr_mc_compact.R
-```
-
-Smoke run:
-
-```sh
-Rscript scripts/14_gsa_llr_mc_compact.R --quick
-```
-
-Repair sweep:
-
-```sh
-Rscript scripts/15_gsa_llr_repair_sweep.R
-```
-
-Expected current result: GSA-LLR controls null behavior and detects skewness-sensitive alternatives, but the strict PHQ-like pure-kurtosis cell remains below the manuscript power gate.
-
-## PMM3 Symmetric Probe
+## PMM3 Symmetric Diagnostic Probe
 
 ```sh
 Rscript scripts/18_pmm3_symmetric_probe.R
 ```
 
-Expected current result: variance reduction is present, but the practical power gain and Gaussian nuisance guard do not pass the manuscript gate.
+Expected current result: PMM3 reduces variance but fails the
+nuisance-aware testing gate; it is a diagnostic probe, not a new test.
 
-## DSGE / PATP-DSGE Hybrid Branch
+Generated artifacts include:
 
-Pure DSGE probe:
+- `output/tables/pmm3_symmetric_probe_results.csv`
+- `output/tables/pmm3_symmetric_probe_verdict.csv`
+- `output/tables/revision_pmm3_ci.csv`
 
-```sh
-Rscript scripts/16_dsge_cit_probe.R
-```
-
-Hybrid DSGE classifier:
-
-```sh
-Rscript scripts/17_dsge_hybrid_cit_classifier.R
-```
-
-PATP-DSGE sweep:
+## Targeted Revision Experiments
 
 ```sh
-Rscript scripts/19_patp_dsge_hybrid_sweep.R
+Rscript scripts/21_revision_experiments.R
 ```
 
-Figure:
+Generated artifacts:
 
-```sh
-Rscript scripts/20_make_patp_dsge_hybrid_figure.R
-```
+- `output/tables/revision_ci_existing.csv`
+- `output/tables/revision_bootstrap_sensitivity.csv`
+- `output/tables/revision_heavytail_sensitivity.csv`
+- `output/tables/revision_heavytail_ratios.csv`
+- `output/tables/revision_dcov_sanity.csv`
+- `output/tables/revision_pmm3_ci.csv`
 
-Expected current result: the positive result is the existing-feature plus PATP-DSGE hybrid at `alpha = 0.75`, not pure DSGE and not a distribution-free test.
+The script adds:
+
+- Wilson confidence intervals for Type-I and power rates;
+- bootstrap sensitivity for `B=200` versus `B=1000` and percentile
+  versus BCa intervals;
+- a Tukey g-and-h heavy-tail alternative for the skew-heavy confounder;
+- a local permutation distance-covariance sanity check.
+
+## Legacy Exploratory Branches
+
+The repository still contains older GSA/DSGE/PATP-DSGE exploratory
+scripts and generated artifacts from the broader research track. They
+are retained for provenance but are not part of the current manuscript's
+headline verification.
+
+Do not cite those exploratory positive-candidate results as claims of
+the current JMASM submission.
 
 ## Exclusions
 
@@ -101,4 +105,3 @@ This public supplement excludes:
 - third-party source articles or PDFs;
 - private scratch files;
 - the manuscript source itself.
-
