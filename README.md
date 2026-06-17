@@ -23,6 +23,10 @@ The active manuscript scope is:
 - targeted revision checks: Wilson intervals, bootstrap sensitivity,
   Tukey g-and-h heavy-tail sensitivity, and raw distance-covariance
   sanity baseline;
+- a real-data empirical illustration on the PHQ-8 depression scale
+  (BRFSS 2010, 70 four-plus-four half-splits): the null-optimized
+  correction attenuates the statistic in every split and erases a
+  one-directional subset of the naive detections;
 - PATP only as a conceptual basis-adaptivity direction, not as a
   positive empirical method in this manuscript.
 
@@ -37,8 +41,17 @@ current manuscript's headline verification.
 - `scripts/09_sim_comparative.R` - PMM2 versus naive Monte Carlo driver.
 - `scripts/18_pmm3_symmetric_probe.R` - PMM3-style diagnostic probe.
 - `scripts/21_revision_experiments.R` - targeted revision experiments.
+- `scripts/01_download_brfss2010.R` - downloads and processes the public
+  BRFSS 2010 PHQ-8 high-risk subset (regenerates the local `.rds`; raw
+  files are not redistributed).
+- `scripts/03_phq8_70_splits.R` - naive Delta-c3 baseline over the 70
+  PHQ-8 half-splits.
+- `scripts/22_phq8_criterion.R` - real-data transferability-criterion
+  analysis; writes `output/tables/phq8_criterion.csv` and
+  `output/figures/fig_phq8_criterion.{pdf,png}`.
 - `scripts/verify_reported_values.R` - fast verification of the
-  manuscript-level numerical claims from generated CSV artifacts.
+  manuscript-level numerical claims (including the PHQ-8 Section 6
+  results) from generated CSV artifacts.
 - `output/tables/` - generated CSV tables used for manuscript tables and
   diagnostics.
 - `output/figures/` - generated figures from the broader supplement.
@@ -76,6 +89,16 @@ Rscript scripts/21_revision_experiments.R
 Rscript scripts/verify_reported_values.R
 ```
 
+The real-data Section 6 illustration (regenerates the committed
+`phq8_criterion.csv` and figure) requires the processed BRFSS subset,
+which is produced locally from public CDC data and is not redistributed:
+
+```sh
+Rscript scripts/01_download_brfss2010.R   # downloads + processes BRFSS 2010 PHQ-8
+Rscript scripts/03_phq8_70_splits.R       # naive baseline (optional cross-check)
+Rscript scripts/22_phq8_criterion.R       # criterion table + figure
+```
+
 ## R Dependencies
 
 The active manuscript scripts use base R plus:
@@ -94,9 +117,13 @@ does not require `energy` or `Hmisc`.
 
 ## Data Boundary
 
-The manuscript is simulation-based. BRFSS 2010 PHQ-8 is used only as
-public-data context for the Wiedermann-Shi application setting. This
-repository does not redistribute BRFSS data or third-party articles.
+The manuscript's core results are simulation-based; Section 6 adds a
+real-data illustration on the public BRFSS 2010 PHQ-8 data. The processed
+subset is regenerated locally by `scripts/01_download_brfss2010.R` from
+the public CDC source. This repository ships the generated per-split
+criterion table (`output/tables/phq8_criterion.csv`) and figure, but does
+not redistribute raw BRFSS files, the processed `.rds`, or third-party
+articles.
 
 ## License
 

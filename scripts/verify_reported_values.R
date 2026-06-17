@@ -135,4 +135,25 @@ pmm3_type1 <- row1(pmm3_ci, pmm3_ci$method == "pmm3_delta_c4" &
                      pmm3_ci$metric == "typeI_H0_ng", "PMM3 type-I CI")
 near(pmm3_type1$rate, 0.07125, "PMM3 diagnostic Type-I rate", 1e-6)
 
+# --- Section 6: real-data PHQ-8 / BRFSS 2010 transferability-criterion checks ---
+# Self-contained: reads the committed per-split table (no BRFSS .rds needed).
+crit <- read_table("phq8_criterion.csv")
+near(nrow(crit), 70, "PHQ-8 criterion: number of half-splits", 1e-9)
+near(sum(crit$rel_attenuation < 0), 70, "PHQ-8: splits attenuated toward zero", 1e-9)
+near(sum(crit$sig_naive), 58, "PHQ-8: naive detections (alpha=0.05)", 1e-9)
+near(sum(crit$sig_pmm2), 52, "PHQ-8: PMM2 detections (alpha=0.05)", 1e-9)
+near(sum(crit$sig_naive == 1 & crit$sig_pmm2 == 0), 6,
+     "PHQ-8: detections erased by PMM2", 1e-9)
+near(sum(crit$sig_naive == 0 & crit$sig_pmm2 == 1), 0,
+     "PHQ-8: detections created by PMM2", 1e-9)
+near(sum(crit$criterion_safe), 10, "PHQ-8: no-bias precondition met", 1e-9)
+med_K <- median(crit$K_cv)
+if (!(med_K > 0.13 && med_K < 0.25))
+  stop(sprintf("PHQ-8 median K* out of expected range: %.4f", med_K), call. = FALSE)
+cat(sprintf("PASS %-58s %.6f\n", "PHQ-8: real-data H0-optimal K* (median ~ sim 0.24)", med_K))
+med_att <- median(abs(crit$rel_attenuation))
+if (!(med_att > 0.50 && med_att < 0.60))
+  stop(sprintf("PHQ-8 median attenuation out of expected range: %.4f", med_att), call. = FALSE)
+cat(sprintf("PASS %-58s %.6f\n", "PHQ-8: median |relative attenuation|", med_att))
+
 cat("\nAll current-manuscript verification checks passed.\n")

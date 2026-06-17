@@ -2,6 +2,11 @@
 .RData
 .Rproj.user/
 data/*.rds
+# BRFSS download/processing target (scripts/01) — never redistribute raw/processed data
+source-documents/
+*.rds
+*.XPT
+*.zip
 *.log
 *.aux
 *.out
