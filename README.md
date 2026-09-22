@@ -138,7 +138,8 @@ articles.
 
 ## License
 
-No explicit open-source license has been declared in this repository
-yet. Until a license is added, the code and generated artifacts are
-available for review and verification, but reuse rights should be
-clarified by the author.
+MIT License, Copyright (c) 2026 Serhii Zabolotnii - see `LICENSE`. This
+covers the code in `scripts/` and the generated artifacts in `output/`.
+It does not extend to the underlying BRFSS 2010 data, which is public
+CDC material and is not redistributed here (see `docs/DATA_POLICY.md`),
+or to any third-party article cited by the manuscript.
