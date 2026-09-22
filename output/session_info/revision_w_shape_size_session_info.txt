@@ -1,0 +1,37 @@
+Revision experiment 23: W-shape size under independent errors
+=============================================================
+Timestamp: 2026-09-17 16:33:17 EEST
+Command: Rscript scripts/23_revision_w_shape_size.R  
+Seed base: 20260548 (= 20260525 + 23)
+Seed scheme: seed_r = SEED_BASE + run_offset + cond_idx*10000 + r; data = seed_r; bootstrap naive = seed_r+1, PMM2 full = seed_r+2, PMM2 single-aux = seed_r+3
+  run sec5_match_200       n_reps= 200 B=200 sigma_T=sigma_W=1.000000 run_offset=500000 wall=80.6s
+  run extended_1000        n_reps=1000 B=200 sigma_T=sigma_W=1.000000 run_offset=1000000 wall=812.5s
+  run scale_invsqrt2_200   n_reps= 200 B=200 sigma_T=sigma_W=0.707107 run_offset=500000 wall=138.3s
+Population-weight reference: N = 2,000,000, seed = SEED_BASE + 9000000 + shape index (1..4, order of shape_conditions)
+Cores (mclapply): 8
+Total wall time: 1035.3 s (17.26 min)
+Reproducibility check passed: TRUE
+
+R version 4.5.3 (2026-03-11)
+Platform: aarch64-apple-darwin25.3.0
+Running under: macOS 27.0
+
+Matrix products: default
+BLAS:   /opt/homebrew/Cellar/openblas/0.3.33/lib/libopenblasp-r0.3.33.dylib 
+LAPACK: /opt/homebrew/Cellar/r/4.5.3/lib/R/lib/libRlapack.dylib;  LAPACK version 3.12.1
+
+locale:
+[1] C.UTF-8/C.UTF-8/C.UTF-8/C/C.UTF-8/C.UTF-8
+
+time zone: Europe/Kyiv
+tzcode source: internal
+
+attached base packages:
+[1] parallel  stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+[1] moments_0.14.1 here_1.0.2    
+
+loaded via a namespace (and not attached):
+[1] compiler_4.5.3  rprojroot_2.1.1

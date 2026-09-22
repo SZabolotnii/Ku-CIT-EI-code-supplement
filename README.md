@@ -20,6 +20,10 @@ The active manuscript scope is:
 - PMM2 variance-reduced estimator and its loss of alternative-side
   consistency;
 - PMM3-style fourth-order diagnostic probe;
+- the null side of the same criterion: when the two idiosyncratic error
+  components differ in shape, the auxiliary means are no longer zero and
+  the PMM2 statistic loses size under a true null, while the naive
+  statistic does not;
 - targeted revision checks: Wilson intervals, bootstrap sensitivity,
   Tukey g-and-h heavy-tail sensitivity, and raw distance-covariance
   sanity baseline;
@@ -41,6 +45,9 @@ current manuscript's headline verification.
 - `scripts/09_sim_comparative.R` - PMM2 versus naive Monte Carlo driver.
 - `scripts/18_pmm3_symmetric_probe.R` - PMM3-style diagnostic probe.
 - `scripts/21_revision_experiments.R` - targeted revision experiments.
+- `scripts/23_revision_w_shape_size.R` - null-side size experiment: the
+  same design with separate skewness for the two error components;
+  writes `output/tables/revision_w_shape_size{,_reps}.csv`.
 - `scripts/01_download_brfss2010.R` - downloads and processes the public
   BRFSS 2010 PHQ-8 high-risk subset (regenerates the local `.rds`; raw
   files are not redistributed).
@@ -49,6 +56,9 @@ current manuscript's headline verification.
 - `scripts/22_phq8_criterion.R` - real-data transferability-criterion
   analysis; writes `output/tables/phq8_criterion.csv` and
   `output/figures/fig_phq8_criterion.{pdf,png}`.
+- `scripts/22b_phq8_criterion_figure_rev1.R` - redraws that figure for
+  the current manuscript from the committed per-split table; recomputes
+  nothing.
 - `scripts/verify_reported_values.R` - fast verification of the
   manuscript-level numerical claims (including the PHQ-8 Section 6
   results) from generated CSV artifacts.
@@ -86,6 +96,7 @@ nontrivial time. A focused reproduction path is:
 Rscript scripts/09_sim_comparative.R
 Rscript scripts/18_pmm3_symmetric_probe.R
 Rscript scripts/21_revision_experiments.R
+Rscript scripts/23_revision_w_shape_size.R   # ~17 min on 8 cores
 Rscript scripts/verify_reported_values.R
 ```
 

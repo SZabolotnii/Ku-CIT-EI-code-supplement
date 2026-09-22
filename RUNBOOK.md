@@ -1,6 +1,6 @@
 # RUNBOOK
 
-Last updated: 2026-06-17
+Last updated: 2026-09-22
 
 Scope: public verification supplement for the current Ku-CIT-EI
 manuscript, **A Transferability Criterion for Null-Optimized Variance
@@ -21,7 +21,9 @@ artifacts in `output/tables/`:
 - bias/attenuation and power-loss table;
 - targeted revision diagnostics;
 - PMM3-style diagnostic values;
-- the real-data PHQ-8 Section 6 results (`phq8_criterion.csv`).
+- the real-data PHQ-8 Section 6 results (`phq8_criterion.csv`);
+- every cell of the null-side size table of Section 5.5
+  (`revision_w_shape_size.csv`), together with the predicted offset.
 
 Expected final line:
 
@@ -87,6 +89,41 @@ The script adds:
 - a Tukey g-and-h heavy-tail alternative for the skew-heavy confounder;
 - a local permutation distance-covariance sanity check.
 
+## Null-Side Size Experiment (Section 5.5)
+
+```sh
+Rscript scripts/23_revision_w_shape_size.R          # full run, ~17 min on 8 cores
+Rscript scripts/23_revision_w_shape_size.R --quick  # 20-rep smoke test, *_QUICK files
+```
+
+Generated artifacts:
+
+- `output/tables/revision_w_shape_size.csv` (per-cell summary, three runs)
+- `output/tables/revision_w_shape_size_reps.csv` (per-replication record)
+- `output/session_info/revision_w_shape_size_session_info.txt`
+
+The script reuses the repository's own DGP, estimators and bootstrap
+(`05_dgp.R`, `02_naive_estimators.R`, `08_pmm2_estimator.R`, plus
+`wilson_ci()` from `21_revision_experiments.R`); the only new code is a
+wrapper that splits the single error-skewness argument into `gamma_W1`
+and `gamma_W2`. The errors are independent in every cell, so
+`Delta c3 = 0` and a level-0.05 test must reject at 0.05.
+
+Expected current result: with a common error shape both PMM2 statistics
+hold their level; with `skew(W1) = 2.25` against a Gaussian `W2` at
+equal variances they reject a true null at 0.226 / 0.752 / 0.976 (three
+auxiliaries) and 0.353 / 0.698 / 0.835 (single auxiliary) for
+`N = 500 / 2000 / 5000`, while the naive statistic stays in the
+0.05-0.08 band. The single-auxiliary centre matches the predicted
+`K* {kappa3(W1) - kappa3(W2)}` and does not move with `N`: the null
+offset is a population quantity, not a small-sample artifact.
+
+The column `run` separates three non-mixed runs: `sec5_match_200` (200
+replications at the exact Section-5 setting), `extended_1000` (1000
+replications, disjoint seeds, the run reported in the manuscript table)
+and `scale_invsqrt2_200` (the 200-replication run repeated at
+`sigma = 1/sqrt(2)` with the same seeds).
+
 ## PHQ-8 Real-Data Illustration (Section 6)
 
 This regenerates the committed `output/tables/phq8_criterion.csv` and
@@ -99,6 +136,17 @@ Rscript scripts/01_download_brfss2010.R   # download + process BRFSS 2010 PHQ-8 
 Rscript scripts/03_phq8_70_splits.R       # naive Delta-c3 baseline (optional cross-check)
 Rscript scripts/22_phq8_criterion.R       # per-split criterion table + figure
 ```
+
+The figure printed in the current manuscript is redrawn from the
+committed `phq8_criterion.csv` alone (no BRFSS `.rds` needed):
+
+```sh
+Rscript scripts/22b_phq8_criterion_figure_rev1.R  # -> fig_phq8_criterion_rev1.{pdf,png}
+```
+
+It recomputes nothing. It drops the earlier subtitle, whose wording was
+false for the two splits whose corrected statistic overshoots through
+zero, and it reads "detection" as what it is - a rejection of H0.
 
 Expected current result: the H0-optimal weight estimated on real data is
 non-zero (median K* ~ 0.21, matching the simulation value ~ 0.24), the

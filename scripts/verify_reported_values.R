@@ -156,4 +156,64 @@ if (!(med_att > 0.50 && med_att < 0.60))
   stop(sprintf("PHQ-8 median attenuation out of expected range: %.4f", med_att), call. = FALSE)
 cat(sprintf("PASS %-58s %.6f\n", "PHQ-8: median |relative attenuation|", med_att))
 
+# --- Section 5.5: size under H0 when the error shapes differ ------------------
+# Every cell of the size table, from the committed summary of the
+# 1000-replication run of scripts/23_revision_w_shape_size.R. The errors are
+# independent in all twelve cells, so a level-alpha test must reject at alpha;
+# the (A2) controls do, the shape-violating cells do not.
+size <- read_table("revision_w_shape_size.csv")
+size <- size[size$run == "extended_1000", , drop = FALSE]
+near(nrow(size), 36, "Size experiment: cells in the 1000-rep run", 1e-9)
+
+expected_size <- data.frame(
+  condition = rep(c("control_gaussian", "control_identical_skew",
+                    "treatment_mild_skew_vs_gaussian",
+                    "treatment_skew_vs_gaussian"), each = 3),
+  tag = rep(c("(0,0)", "(2.25,2.25)", "(0.75,0)", "(2.25,0)"), each = 3),
+  N = rep(c(500, 2000, 5000), times = 4),
+  naive_delta_c3 = c(0.054, 0.062, 0.063, 0.070, 0.072, 0.064,
+                     0.074, 0.079, 0.060, 0.077, 0.058, 0.061),
+  pmm2_full_3aux = c(0.054, 0.059, 0.054, 0.054, 0.064, 0.060,
+                     0.126, 0.394, 0.813, 0.226, 0.752, 0.976),
+  pmm2_single_aux_phi4 = c(0.059, 0.065, 0.057, 0.073, 0.061, 0.057,
+                           0.179, 0.463, 0.853, 0.353, 0.698, 0.835),
+  stringsAsFactors = FALSE
+)
+
+for (i in seq_len(nrow(expected_size))) {
+  for (est in c("naive_delta_c3", "pmm2_full_3aux", "pmm2_single_aux_phi4")) {
+    label <- sprintf("Size %s N=%d %s", expected_size$tag[i],
+                     expected_size$N[i], est)
+    cell <- row1(size, size$condition == expected_size$condition[i] &
+                   size$N == expected_size$N[i] & size$estimator == est, label)
+    near(cell$rejection_rate, expected_size[[est]][i], label, 1e-9)
+  }
+}
+
+ctrl_max <- max(size$rejection_rate[grepl("^control_", size$condition)])
+if (!(ctrl_max <= 0.08))
+  stop(sprintf("(A2) control cell above the bootstrap band: %.3f", ctrl_max),
+       call. = FALSE)
+cat(sprintf("PASS %-58s %.6f\n",
+            "Size: worst (A2)-satisfying cell, any estimator", ctrl_max))
+
+naive_max <- max(size$rejection_rate[grepl("^treatment_", size$condition) &
+                                       size$estimator == "naive_delta_c3"])
+if (!(naive_max <= 0.08))
+  stop(sprintf("naive statistic lost size under an (A2) violation: %.3f",
+               naive_max), call. = FALSE)
+cat(sprintf("PASS %-58s %.6f\n",
+            "Size: worst naive cell where (A2) fails", naive_max))
+
+# The offset is the one Corollary 4 names: the single-auxiliary statistic sits
+# at K* {kappa3(W1) - kappa3(W2)}, a centre that does not move with N.
+one <- size[size$condition == "treatment_skew_vs_gaussian" &
+              size$estimator == "pmm2_single_aux_phi4", , drop = FALSE]
+one <- one[order(one$N), , drop = FALSE]
+for (i in seq_len(nrow(one))) {
+  predicted <- one$mean_K_phi4[i] * one$kappa3_W1_minus_W2[i]
+  near(one$mean_estimate[i], predicted,
+       sprintf("Size: single-aux centre vs prediction N=%d", one$N[i]), 0.015)
+}
+
 cat("\nAll current-manuscript verification checks passed.\n")
