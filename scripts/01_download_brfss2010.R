@@ -1,14 +1,14 @@
 # 01_download_brfss2010.R
 # ---------------------------------------------------------------------------
-# Завантажує BRFSS 2010 (XPT format), розпаковує, читає в R, виконує базові
-# перевірки і зберігає processed PHQ-8 subset як .rds для подальшої роботи.
+# Downloads BRFSS 2010 (XPT format), unzips it, reads it into R, runs basic
+# checks and saves the processed PHQ-8 subset as .rds for the later scripts.
 #
-# Запуск з кореня проєкту:
+# Run from the repository root:
 #   Rscript scripts/01_download_brfss2010.R
 #
-# Залежності: haven, here (встановляться автоматично якщо не знайдено)
-# Час: ~3-5 хв на пристойному інтернеті (99 MB download)
-# Дискове місце: ~250 MB (zip + extracted XPT + processed rds)
+# Dependencies: haven, here (installed automatically when missing)
+# Time: ~3-5 min on a reasonable connection (99 MB download)
+# Disk space: ~250 MB (zip + extracted XPT + processed rds)
 # ---------------------------------------------------------------------------
 
 # 0. Setup --------------------------------------------------------------------
@@ -75,9 +75,9 @@ cat("Object size: ", format(object.size(brfss), units = "MB"), "\n")
 cat("\nFirst 10 variable names:\n")
 print(head(names(brfss), 10))
 
-# 6. PHQ-8 змінні (звірити з codebook 2010!) ---------------------------------
-# Очікувані імена за CDC BRFSS 2010 Anxiety and Depression module
-# Якщо назви не співпадуть — відкрити codebook_10.pdf і виправити
+# 6. PHQ-8 variables (check against the 2010 codebook) ----------------------
+# Expected names from the CDC BRFSS 2010 Anxiety and Depression module.
+# If they do not match, open codebook_10.pdf and correct them.
 phq_vars_candidates <- c(
   "ADPLEASR",  # (a) Little pleasure
   "ADDOWN",    # (b) Feeling down
@@ -96,16 +96,16 @@ cat("\n=== PHQ-8 variables check ===\n")
 cat("Found    (", length(phq_present), "/8): ", paste(phq_present, collapse = ", "), "\n", sep = "")
 if (length(phq_missing) > 0) {
   cat("MISSING  (", length(phq_missing), "/8): ", paste(phq_missing, collapse = ", "), "\n", sep = "")
-  cat("\n>>> ACTION: відкрий", file.path(data_dir, "codebook_10.pdf"),
-      "(окреме скачування) і знайди точні імена для відсутніх пунктів.\n",
-      "Орієнтир: BRFSS 2010 Anxiety and Depression Module (стани AR, CO, DC, HI, LA, MD, MS, MT, NH, NJ, NV, NY, OK, PA, TN, VT, WV).\n")
+  cat("\n>>> ACTION: open", file.path(data_dir, "codebook_10.pdf"),
+      "(separate download) and find the exact names of the missing items.\n",
+      "Reference: BRFSS 2010 Anxiety and Depression Module (states AR, CO, DC, HI, LA, MD, MS, MT, NH, NJ, NV, NY, OK, PA, TN, VT, WV).\n")
 }
 
 if (length(phq_present) >= 6) {
   cat("\n=== Building high-risk subset ===\n")
-  # У BRFSS PHQ-8 елементи кодуються:
+  # BRFSS codes the PHQ-8 items as:
   # 0-14 = number of days, 88 = none, 77 = don't know, 99 = refused
-  # Перекодуємо 88→0, 77/99→NA
+  # Recode 88 -> 0, 77/99 -> NA
   phq_data <- brfss[, phq_present, drop = FALSE]
   phq_data <- as.data.frame(lapply(phq_data, function(x) {
     x <- as.numeric(x)
@@ -115,29 +115,29 @@ if (length(phq_present) >= 6) {
     x
   }))
 
-  # Sum score, тільки complete cases
+  # Sum score, complete cases only
   phq_data$sum_score <- rowSums(phq_data[, phq_present], na.rm = FALSE)
   complete_cases <- !is.na(phq_data$sum_score)
   cat("Complete PHQ-8 responses: ", sum(complete_cases), "\n")
 
   # High-risk per W&S p.33: "all eight symptoms occurred at least once
   # within the past 14 days (i.e., a sum score >= 8)"
-  # KEY: парентеза оманлива — основна умова "all >= 1", не просто sum >= 8.
-  # Сума ≥ 8 досягається тільки якщо всі 8 ≥ 1 (8 items × min 1 = 8).
+  # KEY: the parenthesis is misleading - the condition is "all >= 1", not
+  # merely sum >= 8 (a sum >= 8 does not imply that every item is >= 1).
   all_present <- complete_cases & apply(phq_data[, phq_present], 1,
                                          function(x) all(x >= 1))
   highrisk <- phq_data[all_present, ]
   cat("High-risk subset (all 8 symptoms >= 1): ", nrow(highrisk),
       "  (W&S reported N=2136)\n")
 
-  # Зберегти full і high-risk
+  # Save the full data and the high-risk subset
   saveRDS(brfss, rds_path)
   saveRDS(highrisk, phq_rds_path)
   cat("\nSaved:\n")
   cat("  Full BRFSS 2010:  ", rds_path, "\n")
   cat("  PHQ-8 high-risk:  ", phq_rds_path, "\n")
 
-  # Розподільні характеристики (звірка з W&S Table 5)
+  # Distributional summaries (compare with W&S Table 5)
   cat("\n=== Descriptive stats (compare with W&S Table 5) ===\n")
   desc <- sapply(highrisk[, phq_present], function(x) {
     c(M = mean(x, na.rm = TRUE), SD = sd(x, na.rm = TRUE),
@@ -149,7 +149,7 @@ if (length(phq_present) >= 6) {
   print(round(desc, 2))
   cat("\nW&S reported: M ~7.3-10.2, SD ~4.3-4.9, skew ~[-0.66, 0.30], exkurt ~[-1.58, -1.06]\n")
 } else {
-  cat("\n>>> Зупиняюсь — PHQ-8 змінні не знайдено. Виправ імена після перегляду codebook.\n")
+  cat("\n>>> Stopping - PHQ-8 variables not found. Correct the names after checking the codebook.\n")
 }
 
 cat("\n=== DONE ===\n")

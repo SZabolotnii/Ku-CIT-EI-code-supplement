@@ -14,7 +14,9 @@
 #     column is still named pmm2_phi4);
 #   * legend wording: "detection" is a rejection of H0, so the erased class
 #     reads "Rejected by naive only";
-#   * title shortened so it is not clipped at 7.5 in.
+#   * title shortened so it is not clipped at 7.5 in;
+#   * PDF written with cairo_pdf (2026-09-24): the default pdf() device left
+#     Helvetica and Symbol unembedded, which fails the embedded-font check.
 # Output: output/figures/fig_phq8_criterion_rev1.{pdf,png}
 # ---------------------------------------------------------------------------
 suppressPackageStartupMessages({ library(here); library(ggplot2) })
@@ -56,6 +58,7 @@ p <- ggplot(df, aes(x = naive_phi1, y = pmm2_phi4, color = decision, shape = dec
   theme_bw(base_size = 11) +
   theme(legend.position = "bottom")
 
-ggsave(here("output", "figures", "fig_phq8_criterion_rev1.pdf"), p, width = 7.5, height = 6)
+ggsave(here("output", "figures", "fig_phq8_criterion_rev1.pdf"), p, width = 7.5, height = 6,
+       device = cairo_pdf)
 ggsave(here("output", "figures", "fig_phq8_criterion_rev1.png"), p, width = 7.5, height = 6, dpi = 150)
 cat("written: output/figures/fig_phq8_criterion_rev1.{pdf,png}\n")
