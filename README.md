@@ -6,6 +6,13 @@ Public verification supplement for the manuscript:
 
 Repository: <https://github.com/SZabolotnii/Ku-CIT-EI-code-supplement>
 
+Archived versions (Zenodo):
+
+- v1.0.0, the version cited by the SORT revision 1:
+  <https://doi.org/10.5281/zenodo.22933610>
+- all versions (concept DOI, resolves to the latest):
+  <https://doi.org/10.5281/zenodo.22933609>
+
 ## Scope
 
 The current manuscript evaluates whether a null-optimized PMM2

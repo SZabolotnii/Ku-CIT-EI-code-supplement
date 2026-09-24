@@ -8,6 +8,14 @@ authors:
     affiliation: "Cherkasy State Business College, Cherkasy, Ukraine"
 version: "1.0.0"
 date-released: "2026-09-24"
+doi: "10.5281/zenodo.22933609"
+identifiers:
+  - type: doi
+    value: "10.5281/zenodo.22933609"
+    description: "Concept DOI (all versions)"
+  - type: doi
+    value: "10.5281/zenodo.22933610"
+    description: "Version 1.0.0 (cited by the SORT revision 1)"
 license: MIT
 repository-code: "https://github.com/SZabolotnii/Ku-CIT-EI-code-supplement"
 url: "https://github.com/SZabolotnii/Ku-CIT-EI-code-supplement"
